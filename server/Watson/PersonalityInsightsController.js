@@ -25,7 +25,7 @@ class PersonalityInsightsController{
                 content_type: 'text/plain',
                 consumption_preferences: true,
                 raw_scores: true,
-                accept_language: 'pt-br'
+                accept_language: 'en'
             }
             return new Promise((resolve, reject) => {
                 this.watsonPersonalityInsights.profile(params, (err, result) => {
