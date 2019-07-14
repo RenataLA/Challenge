@@ -1,4 +1,5 @@
 const watson = require('./Watson');
+require('dotenv/config');
 
 function personalityGetProfile(content){
     watson.PersonalityInsights.getProfile(content)
@@ -13,10 +14,7 @@ function parseResult(result){
     var big5 = getBigFive(result);
     var values = getValues(result);
     var needs = getNeeds(result);
-    console.log(big5);
-    console.log(values);
-    console.log(needs);
-
+    console.log(saveData(big5));
 }
 
 function getBigFive(result){
@@ -50,6 +48,13 @@ function getNeeds(result){
             Percentile : parseFloat((e.percentile * 100).toFixed(2))
         }
     });
-    return values;
+    return needs;
 }
-personalityGetProfile("Greatest properly off ham exercise all. Unsatiable invitation its possession nor off. All difficulty estimating unreserved increasing the solicitude. Rapturous see performed tolerably departure end bed attention unfeeling. On unpleasing principles alteration of. Be at performed preferred determine collected. Him nay acuteness discourse listening estimable our law. Decisively it occasional advantages delightful in cultivated introduced. Like law mean form are sang loud lady put. An sincerity so extremity he additions. Her yet there truth merit. Mrs all projecting favourable now unpleasing. Son law garden chatty temper. Oh children provided to mr elegance marriage strongly. Off can admiration prosperous now devonshire diminution law. ");
+
+function saveData(big5){
+    return "INSERT INTO BIGFIVE(cod_candidato, abertura, escrupulosidade, extroversao, amabilidade, faixa_emocional) VALUES (1,"+ 
+    big5.big5_openness.Percentile+","+big5.big5_conscientiousness.Percentile+","+big5.big5_extraversion.Percentile+","+big5.big5_agreeableness.Percentile+","
+    +big5.big5_neuroticism.Percentile+");";
+}
+
+//personalityGetProfile("Greatest properly off ham exercise all. Unsatiable invitation its possession nor off. All difficulty estimating unreserved increasing the solicitude. Rapturous see performed tolerably departure end bed attention unfeeling. On unpleasing principles alteration of. Be at performed preferred determine collected. Him nay acuteness discourse listening estimable our law. Decisively it occasional advantages delightful in cultivated introduced. Like law mean form are sang loud lady put. An sincerity so extremity he additions. Her yet there truth merit. Mrs all projecting favourable now unpleasing. Son law garden chatty temper. Oh children provided to mr elegance marriage strongly. Off can admiration prosperous now devonshire diminution law. ");

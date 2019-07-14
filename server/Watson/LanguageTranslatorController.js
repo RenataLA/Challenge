@@ -8,8 +8,8 @@ class LanguageTranslatorController{
         try {
             this.watsonTranslator = new LanguageTranslator({
                 version: '2018-05-01',
-                iam_apikey: 'Kbm3ziZAVZst81_HQtpwVHKbpLmP03oCsbzwPy1IxFjF',
-                url: 'https://gateway-wdc.watsonplatform.net/language-translator/api'
+                iam_apikey: process.env.LANGUAGE_TRANSLATOR_KEY,
+                url: process.env.LANGUAGE_TRANSLATOR_URL
             });
             return Promise.resolve();
         } catch(err) {
@@ -77,6 +77,5 @@ class LanguageTranslatorController{
             return Promise.reject(err);
         }
     }
-//Document translation ?
 }
 module.exports = new LanguageTranslatorController();

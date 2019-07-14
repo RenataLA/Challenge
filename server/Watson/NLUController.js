@@ -9,8 +9,8 @@ class NLUController{
         try {
             this.nlu = new NaturalLanguageUnderstanding({
                 version: '2018-11-16',
-                iam_apikey: 'VVXQrQVBSnpdDBXzwjTz-xXrWpR0R3MWt3Cts3DwidCN',
-                url: 'https://gateway.watsonplatform.net/natural-language-understanding/api'
+                iam_apikey: process.env.NLU_URL,
+                url: process.env.NLU_KEY
             });
             return Promise.resolve();
         } catch(err) {

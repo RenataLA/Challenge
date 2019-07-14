@@ -1,4 +1,5 @@
 const PersonalityInsights = require('watson-developer-cloud/personality-insights/v3');
+require('dotenv/config');
 
 class PersonalityInsightsController{
     constructor(){
@@ -8,9 +9,9 @@ class PersonalityInsightsController{
     init(){
         try {
             this.watsonPersonalityInsights = new PersonalityInsights({
-                iam_apikey: '9LwLgvG2pIhHJfVjGlMdNBGDF8PRsTNj8mMbfOeK5-dW',
+                iam_apikey: process.env.PERSONALITY_KEY,
                 version: '2016-10-19',
-                url: 'https://gateway.watsonplatform.net/personality-insights/api'
+                url: process.env.PERSONALITY_URL
             });
         } catch(err) {
             return Promise.reject(err);
@@ -24,8 +25,8 @@ class PersonalityInsightsController{
                 content: content,
                 content_type: 'text/plain',
                 consumption_preferences: true,
-                raw_scores: true,
-                accept_language: 'en'
+                raw_scores: true,   
+                accept_language: 'pt-br'
             }
             return new Promise((resolve, reject) => {
                 this.watsonPersonalityInsights.profile(params, (err, result) => {
