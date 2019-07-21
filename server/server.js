@@ -1,7 +1,6 @@
 
 var express = require('express');
 var app = express();
-var Personality = require('./index.js');
 
 app.get('/', function (req, res) {
    
@@ -22,7 +21,6 @@ app.get('/', function (req, res) {
     sql.connect(config, function (err) {
     
         if (err) console.log(err);
-
         // create Request object
         var request = new sql.Request();
            
