@@ -1,31 +1,25 @@
+const express = require('express');
+const app = express();
+const sql = require('./SQL/Sql')
 
-var express = require('express');
-var app = express();
 
-app.get('/api/sql', function (req, res) {
-   
-    var sql = require("mssql");
-    var config = {
-        user: 'sa',
-        password: 'Pass@word',
-        server: 'localhost', 
-        database: 'Challenge' 
-    };
-    sql.connect(config, function (err) {
-        if (err) console.log(err);
-        var request = new sql.Request();
-        //where cod_candidato='+req.query.cod
-        request.query('select * from Candidato where cod_candidato LIKE '+req.query.cod, function (err, recordset) {            
-            if (err) {
-                console.log(err);
-                res.send(err);
-                sql.close();
-            }
-            res.send(recordset);
-            sql.close();
-        });
-    });
+app.get('/api/selectsql', function (req, res) {
+    if(req.query.cod)   var cod = "cod_candidato LIKE '"+req.query.cod +"'";
+    else    var cod = "cod_candidato LIKE '%'"
+    if(req.query.email)   var email = "email LIKE '"+req.query.email +"'";
+    else    var email = "email LIKE '%'"
+    if(req.query.cod)   var cod = "cpf LIKE '"+req.query.cpf +"'";
+    else    var cpf = "cpf LIKE '%'"
+
+    sql.doSelect(req.query.table, cod, email, cpf)
+    .then(result => {
+        res.send(result);
+    })
+    .catch(err => {
+        res.send(err);
+    })
 });
+
 
 app.get('/api/hello', (req, res) => {
     res.send({ express: 'Hello From Express' });
