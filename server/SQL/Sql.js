@@ -1,4 +1,5 @@
 const sql = require("mssql");
+const Correios = require('node-correios');
 const config = {
     user: 'sa',
     password: 'Pass@word',
@@ -18,8 +19,6 @@ class Sql{
             }    
         }
         selectquery += aux;
-        console.log(selectquery);
-        
         return new Promise(function (resolve, reject){
             sql.connect(config, function (err) {
                 if(err) return reject();
@@ -27,17 +26,66 @@ class Sql{
                 request.query(selectquery, function (err, recordset) {            
                     if (err)    console.log('Erro', err);
                     sql.close();
-                    console.log(recordset);
                     resolve(recordset);
                 });
             });
         })   
     }
+    
+    insertCandidato(...values){
+        return new Promise(function (resolve, reject){
+            sql.connect(config, function (err){
+                if(err) console.log("Erro ao conectar", err);
+                var request = new sql.Request();
+                request.input('nome', sql.VarChar, values[0])
+                request.input('sobrenome', sql.VarChar, values[1])
+                request.input('data_nascimento', sql.Date, values[2])
+                request.input('cpf', sql.VarChar, values[3])
+                request.input('email',sql.VarChar,  values[4])
+                request.input('telefone', sql.VarChar,  values[5])
+                request.input('celular', sql.VarChar,  values[6])
+                request.input('endereco_numero', sql.Int,  values[7]),
+                request.input('cod_localidade', sql.Int, values[8]),
+                request.query('INSERT INTO CANDIDATO (nome, sobrenome, data_nascimento, cpf, email, telefone, celular, endereco_numero, cod_localidade) VALUES (@nome, @sobrenome, @data_nascimento, @cpf, @email, @telefone, @celular, @endereco_numero, @cod_localidade)', (err, result) =>{
+                    if(err) reject(err);
+                    resolve(result)
+                });
+            });
+        });
+    }  
+    
+    insertCEP(cep){
+        return new Promise(function (resolve, reject){
+            var correios = new Correios();
+            correios.consultaCEP({ cep: cep })
+            .then(result => {
+                if(result.Erro || result.erro){
+                    reject("Falha");
+                }
+                else{
+                    sql.connect(config, function (err){
+                        if(err) console.log("Erro ao conectar", err);
+                        var request = new sql.Request();
+                        request.input('cep', sql.VarChar, cep)
+                        request.input('bairro', sql.VarChar, result.bairro)
+                        request.input('localidade', sql.VarChar, result.localidade)
+                        request.input('logradouro', sql.VarChar, result.logradouro)
+                        request.input('uf', sql.VarChar,  result.uf)
+                        request.query('INSERT INTO LOCALIDADE (cep, bairro, localidade, logradouro, uf) VALUES (@cep, @bairro, @localidade, @logradouro, @uf)', (err, result) =>{
+                            if(err) reject(err);
+                            sql.close();
+                            resolve(result)
+                        });
+                    });
+                }
+            })
+            .catch(err =>{
+                console.log("Erro : Impossivel inciar serviço de endereço. " + err);
+                reject(err);
+            });
+        });
+        
+    }    
 }
 
 module.exports = new Sql();
-
-
-//  doSelect('CANDIDATO', 'cod_candidato=2')
-//  .then(function(results){console.log(results)})
-// var a = SelectSQL('SELECT * FROM CANDIDATO WHERE cod_candidato=1');console.log(a);
