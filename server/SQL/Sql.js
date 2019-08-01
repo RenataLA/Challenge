@@ -48,7 +48,8 @@ class Sql{
                 request.input('cod_localidade', sql.Int, values[8]),
                 request.query('INSERT INTO CANDIDATO (nome, sobrenome, data_nascimento, cpf, email, telefone, celular, endereco_numero, cod_localidade) VALUES (@nome, @sobrenome, @data_nascimento, @cpf, @email, @telefone, @celular, @endereco_numero, @cod_localidade)', (err, result) =>{
                     if(err) reject(err);
-                    resolve(result)
+                    sql.close();
+                    resolve(result);
                 });
             });
         });
