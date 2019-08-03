@@ -1,9 +1,14 @@
 const express = require('express');
-const app = express();
-const sql = require('./SQL/Sql')
 const bodyParser = require('body-parser')
+
+const sql = require('./SQL/Sql')
 var multer = require('multer')
 var cors = require('cors');
+
+const pdfToTxt = require('./Handlers/PdfToText');
+const Watson = require('./Watson');
+
+const app = express();
 app.use(cors())
 app.use( bodyParser.json());        // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
@@ -11,25 +16,44 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 })); 
 
 
+
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
-    cb(null, '..')
+    cb(null, 'Uploads/')
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + '-' +file.originalname )
   }
-})
+});
 
-var upload = multer({ storage: storage }).single('file')
+var upload = multer({ storage: storage }).single('file');
 
 app.post('/upload',function(req, res) {
-     
     upload(req, res, function (err) {
            if (err instanceof multer.MulterError) {
                return res.status(500).json(err)
            } else if (err) {
                return res.status(500).json(err)
            }
+        pdfToTxt(req.file.filename)
+        .then(text => {
+            console.log(text);
+            Watson.PersonalityInsights.getProfile(text)
+            .then(resultPersonality => {
+                console.log(resultPersonality);
+            })
+        })
+        // .then(englishText => {
+        //     Watson.PersonalityInsights.getProfile(englishText)
+        // })
+        // .then(resultPersonality => {
+        //     console.log(resultPersonality);
+        // })
+        .catch(err => {
+            console.log(err);
+        })
+        console.log(req.file.filename);
+
       return res.status(200).send(req.file)
 
     })
@@ -128,8 +152,6 @@ app.get('/api/insertCandidato', function (req, res){
     })
 });
 
-
-  
-var server = app.listen(5000, function () {
+const server = app.listen(5000, function () {
     console.log('Server is running..');
 });
