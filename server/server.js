@@ -41,6 +41,7 @@ app.post('/upload',function(req, res) {
             Watson.PersonalityInsights.getProfile(text)
             .then(resultPersonality => {
                 console.log(resultPersonality);
+                resultPersonality
             })
         })
         // .then(englishText => {
@@ -150,6 +151,22 @@ app.get('/api/insertCandidato', function (req, res){
     .catch(err => {
         res.send(err);
     })
+});
+
+app.post('/api/doInsert', function (req, res){
+    var table = req.body.table;
+    //console.log(req.body.values);
+    sql.doInsert(req.body.table, req.body.values)
+    .then(result => {
+        console.log(result);
+        //res.json('User added successfully');
+        res.send(result);
+    })
+    .catch(err =>{
+        res.send(err);
+        console.log(err);
+        // res.status(400).send("unable to save to database");
+    });
 });
 
 const server = app.listen(5000, function () {

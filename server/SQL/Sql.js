@@ -8,7 +8,6 @@ const config = {
 };
 
 class Sql{
-    
     doSelect(table, ...filters){
         var selectquery = "SELECT * FROM " + table;
         var aux = " WHERE "
@@ -32,6 +31,32 @@ class Sql{
         })   
     }
     
+    doInsert(table, values){
+        var fields = Object.keys(values);
+        var values = Object.values(values)
+        return new Promise(function (resolve, reject){
+            sql.connect(config, function (err){
+                if(err) 
+                    console.log("Erro ao conectar", err);
+                var request = new sql.Request();
+                var aux = ""
+                for (let i = 0; i < fields.length; i++) {
+                    request.input(fields[i], values[i]);
+                    if(i == fields.length-1)  aux += " @"+fields[i];
+                    else aux += " @"+fields[i]+",";
+                }
+                var query = "INSERT INTO " + table + "(" + fields + ") VALUES (" + aux + ")";
+                request.query(query, (err, result) =>{
+                    sql.close();
+                    if(err) 
+                        reject(err);
+                    resolve(result);
+                });
+            });
+        });
+    }
+
+
     insertCandidato(...values){
         return new Promise(function (resolve, reject){
             sql.connect(config, function (err){
