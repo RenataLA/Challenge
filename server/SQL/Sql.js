@@ -8,6 +8,7 @@ const config = {
 };
 
 class Sql{
+    
     doSelect(table, ...filters){
         var selectquery = "SELECT * FROM " + table;
         var aux = " WHERE "

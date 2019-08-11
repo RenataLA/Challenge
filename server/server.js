@@ -34,31 +34,65 @@ app.post('/upload',function(req, res) {
                return res.status(500).json(err)
            } else if (err) {
                return res.status(500).json(err)
-           }
+            }
         pdfToTxt(req.file.filename)
         .then(text => {
-            console.log(text);
             Watson.PersonalityInsights.getProfile(text)
-            .then(resultPersonality => {
-                console.log(resultPersonality);
-                resultPersonality
+            .then(res => {
+                var bigfive = {
+                    "values": {
+                        "abertura" : ((res.personality[0].percentile * 100)),
+                        "escrupulosidade" : ((res.personality[1].percentile * 100)),
+                        "extroversao" : ((res.personality[2].percentile * 100)),
+                        "amabilidade" : ((res.personality[3].percentile * 100)),
+                        "faixa_emocional" : ((res.personality[4].percentile * 100)),
+                        "cod_candidato" : req.body.cod_candidato
+                    }
+                }
+                var needs = {
+                    "values" : {
+                        "desafio" : ((res.needs[0].percentile * 100)),
+                        "retraimento" : ((res.needs[1].percentile * 100)),
+                        "curiosidade" : ((res.needs[2].percentile * 100)),
+                        "empolgacao" : ((res.needs[3].percentile * 100)),
+                        "harmonia" : ((res.needs[4].percentile * 100)),
+                        "ideal" : ((res.needs[5].percentile * 100)),
+                        "liberdade" : ((res.needs[6].percentile * 100)),
+                        "amor" : ((res.needs[7].percentile * 100)),
+                        "natureza_pratica" : ((res.needs[8].percentile * 100)),
+                        "expressao_personalidade" : ((res.needs[9].percentile * 100)),
+                        "estabilidade" : ((res.needs[10].percentile * 100)),
+                        "estrutura" : ((res.needs[11].percentile * 100)),
+                        "cod_candidato" : req.body.cod_candidato
+                    }
+                }
+                console.log(needs);
+                sql.doInsert("PI_BIGFIVE", bigfive.values)
+                .then(res => {
+                    console.log("INSERT PI bigfive")
+                    console.log(res);
+                    sql.doInsert("PI_NEEDS", needs.values)
+                    .then(res => {
+                        console.log("INSERT PI NEEDS")
+                        console.log(res);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                });
             })
+            .catch(err => {
+                console.log(err);
+            });
         })
-        // .then(englishText => {
-        //     Watson.PersonalityInsights.getProfile(englishText)
-        // })
-        // .then(resultPersonality => {
-        //     console.log(resultPersonality);
-        // })
         .catch(err => {
             console.log(err);
-        })
-        console.log(req.file.filename);
-
+        });
       return res.status(200).send(req.file)
-
     })
-
 });
 
 app.get('/api/selectCandidato', function (req, res) {
@@ -66,7 +100,7 @@ app.get('/api/selectCandidato', function (req, res) {
     else    var cod = "cod_candidato LIKE '%'"
     if(req.query.email)   var email = "email LIKE '"+req.query.email +"'";
     else    var email = "email LIKE '%'"
-    if(req.query.cpf)   var cod = "cpf LIKE '"+req.query.cpf +"'";
+    if(req.query.cpf)   var cpf = "cpf LIKE '"+req.query.cpf +"'";
     else    var cpf = "cpf LIKE '%'"
     sql.doSelect(req.query.table, cod, email, cpf)
     .then(result => {
@@ -155,18 +189,34 @@ app.get('/api/insertCandidato', function (req, res){
 
 app.post('/api/doInsert', function (req, res){
     var table = req.body.table;
+    console.log(req.body);
     //console.log(req.body.values);
     sql.doInsert(req.body.table, req.body.values)
     .then(result => {
         console.log(result);
         //res.json('User added successfully');
-        res.send(result);
+        //res.send(result);
+        res.status(200).send("Saved to database : s"+result);
+
     })
     .catch(err =>{
-        res.send(err);
+        //res.send(err);
         console.log(err);
-        // res.status(400).send("unable to save to database");
+        res.status(400).send("unable to save to database " +err );
     });
+});
+
+app.get('/api/doSelect', function (req, res) {
+    if(req.query.cod)   var cod = "cod_candidato LIKE '"+req.query.cod +"'";
+    else    var cod = "cod_candidato LIKE '%'"
+    console.log(cod);
+    sql.doSelect(req.query.table, cod)
+       .then(result =>{
+           res.send(result);
+       })
+       .catch(err => {
+            res.send(err);
+    })
 });
 
 const server = app.listen(5000, function () {

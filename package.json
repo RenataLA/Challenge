@@ -19,6 +19,7 @@
     "nodemon": "^1.19.1",
     "pdf-to-text": "0.0.7",
     "process": "^0.11.10",
+    "twitter": "^1.7.1",
     "watson-developer-cloud": "^4.0.1"
   }
 }
