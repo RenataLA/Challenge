@@ -81,7 +81,7 @@ class Sql{
         });
     }  
     
-    insertCEP(cep){
+    registerZipCode(cep){
         return new Promise(function (resolve, reject){
             var correios = new Correios();
             correios.consultaCEP({ cep: cep })
