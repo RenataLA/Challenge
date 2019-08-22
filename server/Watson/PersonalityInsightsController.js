@@ -5,7 +5,6 @@ class PersonalityInsightsController{
     constructor(){
         this.watsonPersonalityInsights;
     }
-    
     init(){
         try {
             this.watsonPersonalityInsights = new PersonalityInsights({

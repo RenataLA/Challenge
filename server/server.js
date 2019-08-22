@@ -1,9 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser')
-
+require('dotenv/config');
 const sql = require('./SQL/Sql')
 var multer = require('multer')
 var cors = require('cors');
+var Twitter = require('twitter');
+
 
 const pdfToTxt = require('./Handlers/PdfToText');
 const Watson = require('./Watson');
@@ -14,8 +16,6 @@ app.use( bodyParser.json());        // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
 })); 
-
-
 
 // var storage = multer.diskStorage({
 //     destination: function (req, file, cb) {
@@ -221,6 +221,14 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 
 require('./Routes')(app, express);
 
+const twitter = require('./Twitter/Twitter');
+var tw = twitter.fetchTweets("@r0ger__io")
+.then(res => {
+    console.log(res);
+})
+.catch(err => {
+    console.log(err);
+});
 
 
 const server = app.listen(5000, function () {
